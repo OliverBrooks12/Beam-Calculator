@@ -56,7 +56,8 @@ Further Work:
     draw(ax, selected) # Displays current sketch using MatPlotLib
 
     calculate(self) # Returns Centroid and 2nd moment of area
-
-
-
-
+    
+    
+Note: I have already made a basic attempt at implementing a geometry input UI. 
+The current program allows the user to select and deselect vertices with mouse clicks, and it allows the user to move the selection via the keystroke "m".
+(After pressing m, the user can click a location relative to the beam's centroid, and the selected vertices will displace by that amount)
