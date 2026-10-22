@@ -14,12 +14,12 @@ class Sketch:
         self.I_x = 0
         self.I_y = 0
     
-    def add_vertex(self, x, y):
-        self.vertices = np.vstack([self.vertices, [x, y]])
+    def add_vertices(self, verts): # verts is a list of 2-long coords
+        self.vertices = np.vstack([self.vertices, [verts[i] for i in range(len(verts))]])
         return len(self.vertices) - 1
 
-    def add_edge(self, a, b):
-        self.edges = np.vstack([self.edges, [a, b]])
+    def add_edges(self, edges):
+        self.edges = np.vstack([self.edges, [edges[i] for i in range(len(edges))]])
 
     def move_vertex(self, i, x, y):
         self.vertices[i] = [x, y]
@@ -41,16 +41,16 @@ class Sketch:
             self.delete_edge(merge_edge[0])
 
         verts = np.unique(self.edges[np.any(self.edges == a, axis=1)])
-        print(verts)
+        
         verts = verts[verts != a]
-        print(verts)
+        
         self.delete_vertex(a)
         verts = [x-1 if x > a else x for x in verts]
-        print(verts)
+    
         b -= 1 # Don't mind the BandAid,
 
         for vert in verts:
-            self.add_edge(vert, b)
+            self.add_edges(vert, b)
 
         self.move_vertex(b, x, y)
  
@@ -61,10 +61,9 @@ class Sketch:
         print(xbar, ybar)
         
         self.delete_edge(i)
-        self.add_vertex(xbar,ybar)
+        self.add_vertices([xbar,ybar])
         v_new = len(self.vertices)-1
-        self.add_edge(v1,v_new)
-        self.add_edge(v2,v_new)
+        self.add_edges([[v1,v_new],[v2,v_new]])
     
     def print_info(self):
         print('Sketch information:')
@@ -174,7 +173,6 @@ def run(s):
     selected = np.zeros(len(s.vertices))
     global moving
     moving = False
-    print(moving)
 
 
     def update():
@@ -200,7 +198,7 @@ def run(s):
 
         global moving
         if moving:
-            s.vertices[[True if selected[x] else False for x in range(len(s.vertices))]] += [x_m,y_m] # Adds mouse position to selected vertices
+            s.vertices[[True if selected[x] else False for x in range(len(s.vertices))]] += [x_m-s.centroid[0],y_m-s.centroid[1]] # Adds mouse position to selected vertices
             moving = False
 
         for i, [x, y] in enumerate(s.vertices):
@@ -231,65 +229,25 @@ def run(s):
     plt.show()
 
 
-    
+s = Sketch(0.8) # 0.77 mm thickness
 
+s.add_vertices([
+    [0, 73.54], [17.23, 73.54], [0, 0.77], [10, 0.77],
+    [45, 73.54], [55, 73.54], [10, 1.54], [0, 1.54],
+    [55, 72.77], [45, 72.77], [90, 0.77], [100, 0.77],
+    [100, 73.54], [82, 73.54], [100, 1.54], [90, 1.54],
+    [0, 0], [100, 0],
+    [0, 74.31], [100, 74.31]
+])
 
-
-s = Sketch(0.77)
-
-# C-beam 1
-s.add_vertex(0, 73.54)  # 0
-s.add_vertex(17.23, 73.54) # 1 
-s.add_vertex(0, 0.77)   # 2
-s.add_vertex(10, 0.77)  # 3
-
-s.add_edge(0, 1)
-s.add_edge(0, 2)
-s.add_edge(2, 3)
-
-# C-beam 2
-s.add_vertex(45, 73.54) # 4
-s.add_vertex(55, 73.54) # 5
-s.add_vertex(10, 1.54)  # 6
-s.add_vertex(0, 1.54)  # 7
-
-s.add_edge(4, 5)
-s.add_edge(4, 6)
-s.add_edge(6, 7)
-
-# C-beam 3
-s.add_vertex(55, 72.77) # 8
-s.add_vertex(45, 72.77) # 9
-s.add_vertex(90, 0.77)  # 10
-s.add_vertex(100, 0.77)  # 11
-
-s.add_edge(8, 9)
-s.add_edge(8, 10)
-s.add_edge(10, 11)
-
-# C-beam 4
-s.add_vertex(100, 73.54) # 12
-s.add_vertex(82, 73.54) # 13
-s.add_vertex(100, 1.54)  # 14
-s.add_vertex(90, 1.54)  # 15
-
-s.add_edge(12, 13)
-s.add_edge(12, 14)
-s.add_edge(14, 15)
-
-# Bottom Plate
-s.add_vertex(0, 0) # 16
-s.add_vertex(100, 0) # 17
-
-s.add_edge(16, 17)
-
-# Top Plate
-s.add_vertex(0, 74.31) # 18
-s.add_vertex(100, 74.31) # 19
-
-s.add_edge(18, 19)
-
-
+s.add_edges([
+    [0, 1], [0, 2], [2, 3],
+    [4, 5], [4, 6], [6, 7],
+    [8, 9], [8, 10], [10, 11],
+    [12, 13], [12, 14], [14, 15],
+    [16, 17],
+    [18, 19]
+])
 
 
 run(s)
